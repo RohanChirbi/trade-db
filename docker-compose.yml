@@ -1,0 +1,50 @@
+# Start with:  docker compose --env-file .env.local up -d
+# (Compose reads ".env" by default, not ".env.local", so pass --env-file.)
+services:
+  postgres:
+    image: postgres:17
+    container_name: trading_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env.local}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.local}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env.local}
+      # read by sql/03_roles.sh to create the app and read-only roles
+      APP_DB_USER: ${APP_DB_USER:?set APP_DB_USER in .env.local}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?set APP_DB_PASSWORD in .env.local}
+      READONLY_DB_USER: ${READONLY_DB_USER:?set READONLY_DB_USER in .env.local}
+      READONLY_DB_PASSWORD: ${READONLY_DB_PASSWORD:?set READONLY_DB_PASSWORD in .env.local}
+    ports:
+      - "127.0.0.1:5432:5432"   # bound to localhost only
+    volumes:
+      - pgdata_17:/var/lib/postgresql/data
+      # Scripts directly inside ./sql run in filename order, but ONLY on the
+      # first start with an empty volume (01_schema.sql, 02_indexes.sql, ...).
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:7
+    container_name: trading_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:?set MONGO_INITDB_ROOT_USERNAME in .env.local}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:?set MONGO_INITDB_ROOT_PASSWORD in .env.local}
+      MONGO_INITDB_DATABASE: ${MONGODB_DB:-trading_surveillance}
+    ports:
+      - "127.0.0.1:27017:27017"  # bound to localhost only
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet -u $${MONGO_INITDB_ROOT_USERNAME} -p $${MONGO_INITDB_ROOT_PASSWORD} --authenticationDatabase admin --eval 'db.adminCommand({ping:1}).ok' | grep 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata_17:
+  mongodata:

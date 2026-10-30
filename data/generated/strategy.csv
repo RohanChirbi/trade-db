@@ -1,0 +1,6 @@
+strategy_id,name,strategy_type,assigned_capital
+1,Momentum Alpha,MOMENTUM,50000000.0
+2,Mean Reversion Alpha,MEAN_REVERSION,50000000.0
+3,Market Making Alpha,MARKET_MAKING,50000000.0
+4,Arbitrage Alpha,ARBITRAGE,50000000.0
+5,Stat Arb Alpha,STAT_ARB,50000000.0

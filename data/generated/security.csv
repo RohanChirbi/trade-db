@@ -1,0 +1,6 @@
+ticker,company_name,sector,exchange,tick_size,prev_close
+HDFCBANK.NS,HDFC Bank,Financials,NSE,0.05,990.9
+ICICIBANK.NS,ICICI Bank,Financials,NSE,0.05,1342.5
+INFY.NS,Infosys,IT,NSE,0.05,1621.6
+RELIANCE.NS,Reliance Industries,Energy,NSE,0.05,1539.8
+TCS.NS,Tata Consultancy Services,IT,NSE,0.05,3246.8

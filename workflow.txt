@@ -1,0 +1,58 @@
+Phase 0: Setup (Day 1)
+GitHub repo, branch strategy, README skeleton.
+docker-compose.yml with PostgreSQL and MongoDB.
+Next.js app scaffold with .env.local and .env.example (never commit real credentials).
+
+
+Phase 1: Design
+ER diagram, relational schema, and data dictionary.
+Resolve the spec gaps: OrderEvent table for cancel times, position grain, unrealised P&L pricing, and a surveillance threshold config table.
+MongoDB collection design: alerts, audit_log, case_notes, with their indexes.
+
+
+Phase 2: Schema (SQL)
+01_schema.sql: tables, PK/FK, CHECK constraints, in dependency order.
+02_indexes.sql.
+Demonstrate ALTER and DROP in a short migration script (e.g. add a column, drop a test table or index), since the rubric lists them.
+Add a users table with a role column for authentication.
+
+
+Phase 3: Data population
+Download real daily prices and save to CSV.
+Write generate_data.py in order: securities → strategies → quotes → orders and order events → executions.
+Derive positions and risk metrics from executions.
+Load with COPY, then run sanity checks (row counts, execution totals ≤ order quantity, no constraint violations).
+Seed the random generator so everyone gets the same dataset.
+
+
+Phase 4: SQL logic
+Queries Q1-Q20, in the order given earlier, each saved as its own file.
+Four-plus advanced features (you need only four, but these fit naturally):
+Trigger: on execution insert, update order status and position; reject over-fills
+Stored procedure/function: place_order(), record_execution()
+Transaction: order plus execution plus position update, atomic
+View: StrategyPerformance
+Indexing: EXPLAIN ANALYZE before and after on Q9
+Demonstrate UPDATE and DELETE flows too (cancel an order, correct a bad execution record).
+
+
+Phase 5: MongoDB
+A job runs the Postgres detection queries (Q15, Q16, Q17 and the Q20 criteria) and writes alerts into alerts.
+Audit log written on logins and order actions.
+Aggregation pipelines for the dashboard (alerts by type, by day, by security, top flagged strategies).
+
+
+Phase 6: Application
+Auth with two roles: Trader (own strategy, submit and cancel orders) and Compliance/Admin (surveillance, all strategies).
+Pages: login, orders (form and table with filters), positions and P&L, analytics (spread, VWAP, slippage), surveillance dashboard, alert review.
+Route Handlers for every database operation.
+
+
+Phase 7: Testing and validation
+Test cases (documented table of input, expected output, actual output): constraint violations rejected, trigger behaviour, role access control, query correctness.
+Cross-check key queries (Q1, Q2, Q4, Q13) against pandas.
+
+
+Phase 8: Documentation and demo
+Every item in the rubric’s documentation list, plus screenshots.
+Rehearse the demo in the order the rubric lists: ER diagram → schema → implementation → queries → UI → integration → advanced features → tests → contributions.

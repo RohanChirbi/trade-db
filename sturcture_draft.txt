@@ -1,0 +1,20 @@
+trading-db/
+├── docker-compose.yml
+├── sql/
+│   ├── 01_schema.sql          # tables, PK/FK, CHECKs
+│   ├── 02_indexes.sql
+│   ├── 03_config.sql          # SurveillanceConfig thresholds
+│   ├── 04_views.sql           # StrategyPerformance (Q19)
+│   └── queries/
+│       ├── q01_spread.sql
+│       ├── ...
+│       └── q20_surveillance.sql
+├── data/
+│   ├── generate_data.py
+│   └── csv/                   # securities, quotes, orders, executions, ...
+├── tests/
+│   └── validate.ipynb         # pandas cross-checks
+├── docs/
+│   ├── er_diagram.png
+│   └── results/               # one screenshot per query
+└── README.md
