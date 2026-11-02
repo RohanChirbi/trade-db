@@ -43,7 +43,11 @@ next-env.d.ts
 data/raw/*
 !data/raw/.gitkeep
 
-data/processed/*
-!data/processed/.gitkeep
-
 data/generated/*
+
+# Python
+.venv/
+__pycache__/
+
+# local databases (scripts/local.sh)
+/.localdb/

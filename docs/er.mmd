@@ -1,0 +1,88 @@
+erDiagram
+    SECURITY ||--o{ MARKET_QUOTE : "quoted in"
+    SECURITY ||--o{ ORDERS : "traded in"
+    SECURITY ||--o{ POSITION : "held in"
+    STRATEGY ||--o{ ORDERS : places
+    STRATEGY ||--o{ POSITION : holds
+    STRATEGY ||--o{ RISK_METRIC : "measured by"
+    STRATEGY |o--o{ APP_USER : "traded by"
+    ORDERS ||--o{ ORDER_EVENT : "lifecycle"
+    ORDERS ||--o{ EXECUTION : "filled by"
+
+    SECURITY {
+        varchar ticker PK
+        varchar company_name
+        varchar sector
+        varchar exchange
+        numeric tick_size "CHECK > 0"
+        numeric prev_close "CHECK > 0"
+    }
+    STRATEGY {
+        int strategy_id PK
+        varchar name UK
+        varchar strategy_type "CHECK in 5 types"
+        numeric assigned_capital "CHECK > 0"
+    }
+    APP_USER {
+        int user_id PK
+        varchar username UK
+        varchar password_hash "bcrypt"
+        varchar role "TRADER or COMPLIANCE"
+        int strategy_id FK "required for TRADER"
+    }
+    MARKET_QUOTE {
+        bigint quote_id PK
+        varchar ticker FK
+        timestamptz quote_ts "UNIQUE with ticker"
+        numeric bid_price "CHECK bid <= ask"
+        int bid_qty
+        numeric ask_price
+        int ask_qty
+        numeric last_price
+    }
+    ORDERS {
+        bigint order_id PK
+        int strategy_id FK
+        varchar ticker FK
+        varchar side "BUY or SELL"
+        varchar order_type "MARKET or LIMIT"
+        int quantity "CHECK > 0"
+        numeric limit_price "required iff LIMIT"
+        timestamptz submitted_ts
+        varchar status "OPEN PARTIAL FILLED CANCELLED"
+    }
+    ORDER_EVENT {
+        bigint event_id PK
+        bigint order_id FK "ON DELETE CASCADE"
+        varchar event_type "SUBMITTED or CANCELLED"
+        timestamptz event_ts
+    }
+    EXECUTION {
+        bigint execution_id PK
+        bigint order_id FK "RESTRICT"
+        int exec_qty "CHECK > 0"
+        numeric exec_price "CHECK > 0"
+        timestamptz exec_ts
+    }
+    POSITION {
+        int strategy_id PK, FK
+        varchar ticker PK, FK
+        date trade_date PK
+        int quantity "signed, negative = short"
+        numeric avg_entry_price
+        numeric realised_pnl
+    }
+    RISK_METRIC {
+        int strategy_id PK, FK
+        date trade_date PK
+        numeric gross_exposure
+        numeric net_exposure
+        numeric daily_pnl
+        numeric max_position_value
+        numeric available_capital
+    }
+    SURVEILLANCE_CONFIG {
+        varchar param_name PK
+        numeric param_value
+        varchar description
+    }
